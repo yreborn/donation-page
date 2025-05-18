@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全球要饭平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px 20px;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-content {
+            position: sticky;
+            top: 30px;
+        }
+
+        .sidebar-description {
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            padding: 40px;
+            max-width: 1000px;
+        }
+
+        .preview-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .preview-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .config-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .config-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .preview-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .preview-text {
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .qrcode-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .qrcode-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .qrcode-image {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+
+        .editor-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+
+        .editor-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .file-label:hover {
+            background-color: #e0e0e0;
+        }
+
+        .file-name {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .submit-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            color: #333;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: modalAppear 0.3s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                padding: 20px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="sidebar">
+        <div class="sidebar-content">
+            <h1 class="logo">全球要饭平台</h1>
+            <p class="sidebar-description">
+
+                <br><br>
+            </p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="preview-container">
+            <div class="preview-header">
+                <h2 class="preview-title" id="previewTitle">求助标题</h2>
+                <button id="configBtn" class="config-btn">配置信息</button>
+            </div>
+            <img class="preview-image" id="previewImage" src="https://via.placeholder.com/800x400?text=上传图片" alt="求助图片">
+            <div class="preview-text" id="previewText">
+                请在编辑区域填写您的求助原因和详细情况...
+            </div>
+            <div class="qrcode-container">
+                <h3 class="qrcode-title">微信扫码施舍</h3>
+                <img class="qrcode-image" id="previewQRCode" src="https://via.placeholder.com/200x200?text=微信二维码" alt="微信二维码">
+            </div>
+        </div>
+    </div>
+
+    <!-- 配置弹窗 -->
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeConfigModal">&times;</span>
+            <h2 class="editor-title">编辑求助信息</h2>
+            <form id="donationForm">
+                <div class="form-group">
+                    <label for="titleInput">求助标题</label>
+                    <input type="text" id="titleInput" placeholder="请输入求助标题" required>
+                </div>
+                <div class="form-group">
+                    <label for="textInput">求助详情</label>
+                    <textarea id="textInput" placeholder="请详细描述您的困难情况和需要帮助的原因..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="imageInput" class="file-label">上传求助图片</label>
+                    <input type="file" id="imageInput" class="file-input" accept="image/*">
+                    <span class="file-name" id="imageFileName">未选择文件</span>
+                </div>
+                <div class="form-group">
+                    <label for="qrcodeInput" class="file-label">上传微信二维码</label>
+                    <input type="file" id="qrcodeInput" class="file-input" accept="image/*">
+                    <span class="file-name" id="qrcodeFileName">未选择文件</span>
+                </div>
+                <button type="submit" class="submit-btn">保存配置</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取DOM元素
+        const titleInput = document.getElementById('titleInput');
+        const textInput = document.getElementById('textInput');
+        const imageInput = document.getElementById('imageInput');
+        const qrcodeInput = document.getElementById('qrcodeInput');
+        const imageFileName = document.getElementById('imageFileName');
+        const qrcodeFileName = document.getElementById('qrcodeFileName');
+        const previewTitle = document.getElementById('previewTitle');
+        const previewText = document.getElementById('previewText');
+        const previewImage = document.getElementById('previewImage');
+        const previewQRCode = document.getElementById('previewQRCode');
+        const donationForm = document.getElementById('donationForm');
+        const configBtn = document.getElementById('configBtn');
+        const configModal = document.getElementById('configModal');
+        const closeConfigModal = document.getElementById('closeConfigModal');
+
+        // 从本地存储加载数据
+        loadFromLocalStorage();
+
+        // 打开配置弹窗
+        configBtn.addEventListener('click', function() {
+            configModal.style.display = 'flex';
+        });
+
+        // 关闭配置弹窗
+        closeConfigModal.addEventListener('click', function() {
+            configModal.style.display = 'none';
+        });
+
+        // 点击弹窗外部关闭弹窗
+        window.addEventListener('click', function(event) {
+            if (event.target === configModal) {
+                configModal.style.display = 'none';
+            }
+        });
+
+        // 实时预览标题
+        titleInput.addEventListener('input', function() {
+            previewTitle.textContent = this.value || '求助标题';
+        });
+
+        // 实时预览文本
+        textInput.addEventListener('input', function() {
+            previewText.innerHTML = this.value.replace(/\n/g, '<br>') || '请在编辑区域填写您的求助原因和详细情况...';
+        });
+
+        // 处理图片上传
+        imageInput.addEventListener('change', function() {
+            handleFileUpload(this, previewImage, imageFileName);
+        });
+
+        // 处理二维码上传
+        qrcodeInput.addEventListener('change', function() {
+            handleFileUpload(this, previewQRCode, qrcodeFileName);
+        });
+
+        // 表单提交
+        donationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 保存到本地存储
+            saveToLocalStorage();
+
+            // 关闭弹窗
+            configModal.style.display = 'none';
+
+            alert('求助页面已生成并保存！');
+        });
+
+        // 处理文件上传
+        function handleFileUpload(input, imgElement, fileNameElement) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                fileNameElement.textContent = file.name;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imgElement.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 保存到本地存储
+        function saveToLocalStorage() {
+            const donationData = {
+                title: titleInput.value,
+                text: textInput.value,
+                image: previewImage.src,
+                qrcode: previewQRCode.src
+            };
+
+            localStorage.setItem('donationData', JSON.stringify(donationData));
+        }
+
+        // 从本地存储加载
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('donationData');
+
+            if (savedData) {
+                const donationData = JSON.parse(savedData);
+
+                titleInput.value = donationData.title || '';
+                textInput.value = donationData.text || '';
+
+                if (donationData.image && donationData.image !== 'https://via.placeholder.com/800x400?text=上传图片') {
+                    previewImage.src = donationData.image;
+                    imageFileName.textContent = '已上传图片';
+                }
+
+                if (donationData.qrcode && donationData.qrcode !== 'https://via.placeholder.com/200x200?text=微信二维码') {
+                    previewQRCode.src = donationData.qrcode;
+                    qrcodeFileName.textContent = '已上传二维码';
+                }
+
+                // 更新预览
+                previewTitle.textContent = donationData.title || '求助标题';
+                previewText.innerHTML = (donationData.text || '请在编辑区域填写您的求助原因和详细情况...').replace(/\n/g, '<br>');
+            }
+        }
+    });
+</script>
+</body>
+</html>
